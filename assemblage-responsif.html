@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assemblage</title>
+    <style>
+        /* CSS Global Variables */
+
+        :root {
+            --color-deletion: #FFDFDF;
+            --color-deletion-hover: #FF8787;
+
+            --color-insertion: #E8FFE6;
+            --color-insertion-hover: #ACFFA4;
+
+            --color-bg-light-gray: #F2F2F2;
+
+            --alinea-margin: 0.5rem;
+            --alinea-padding: 1.3rem;
+            --alinea-line-height: 2rem;
+
+            --alinea__ID--bg-color: #F2F2F2;
+            --alinea__ID--margin-lr: 0.45rem;
+            --alinea__ID-padding: 1.0rem;
+
+        }
+
+        /* Global CSS Properties */
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Roboto', Arial, 'Comic Sans MS';
+            padding: 0px;
+            margin: 0px;
+        }
+
+        body {
+            background-color: #F2F2F2;
+        }
+
+        .wrapper {
+            display: block;
+        }
+
+        .vfx {
+            transition-property: all;
+            transition-duration: 400ms;
+            transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition-timing-function: cubic-bezier(.3, .99, .64, 1.02);
+        }
+
+        .vfx--quick {
+            transition-property: all;
+            transition-duration: 100ms;
+            transition-timing-function: cubic-bezier(.3, .99, .64, 1.02);
+        }
+
+
+        /* PJL PANE */
+
+        .pjl {
+            color: #4F4F4F;
+            display: flex;
+            flex-direction: column;
+            font-size: 1rem;
+            line-height: 1.8rem;
+            max-width: 450px;
+            padding-bottom: 6rem;
+        }
+
+        @media (max-width:1023px) {
+
+            .pjl {
+                display: flex;
+                flex-direction: column;
+                background-color: var(--color-bg-light-gray);
+                bottom: 0px;
+                height: 25vh;
+                margin-bottom: 75px;
+                padding: 2rem 1rem 0 1rem;
+                position: fixed;
+                max-width: 100vh;
+                z-index: 2;
+                overflow-y: scroll;
+                scrollbar-width: none;
+
+            }
+        }
+
+        .pjl-alinea {
+            align-items: center;
+            background-color: none;
+            border: 4px solid #F2F2F2;
+            border-radius: 0.8rem;
+            display: flex;
+            margin: 1.5rem;
+            padding-left: 1.1rem;
+            padding-left: calc(1.1rem + 4px);
+            padding-right: 4px;
+        }
+
+        .pjl-alinea--is-active {
+            background-color: white;
+            border: 4px solid #6585B6;
+            box-shadow: 0px 4px 0px rgba(0, 0, 0, 0.09);
+            scale: 1.05;
+        }
+
+        .pjl-alinea:hover {
+            background-color: rgba(252, 252, 252, 0.954);
+            border: 4px solid rgba(252, 252, 252, 0.954);
+            box-shadow: 0px 10px 0px rgba(0, 0, 0, 0.09);
+            cursor: pointer;
+            scale: 1.05;
+        }
+
+        .pjl-alinea--is-active:hover {
+            border: 4px solid #365d98;
+        }
+
+        .pjl-alinea__status {
+            /* propriétés pour masquer visuellement certains mots juxtaposés aux numéros d'alinéas du projet de loi */
+            position: absolute;
+            overflow: hidden;
+            left: -10000em;
+            top: auto;
+            height: 1px;
+            width: 1px;
+        }
+
+        .pjl-alinea__ID {
+            align-items: center;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            color: #4F4F4F;
+            display: flex;
+            font-weight: 400;
+            height: 2rem;
+            justify-content: center;
+            margin: 0px 0.3rem;
+            padding: 0px 1rem;
+            place-content: center;
+            width: 2rem;
+        }
+
+        .pjl-alinea__ID--is-active {
+            background-color: #6585B6;
+            color: white;
+        }
+
+        .pjl-alinea__text {
+            display: block;
+            padding: 1.2rem;
+            margin: 0px;
+        }
+
+
+        /* ##### CSS LAW-VIEW ##### */
+
+        .bg-deletion {
+            background-color: var(--color-deletion);
+        }
+
+        .bg-deletion:hover {
+            background-color: var(--color-deletion-hover);
+        }
+
+        .bg-insertion {
+            background-color: var(--color-insertion);
+        }
+
+        .bg-insertion:hover {
+            background-color: var(--color-insertion-hover);
+        }
+
+
+        /*  --  LAW-VIEW (Main Column) -- */
+
+        .law-view {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            max-width: 1080px;
+            padding: 3rem;
+        }
+
+        article {
+            line-height: var(--alinea-line-height);
+        }
+
+        .comparison {
+            align-items: flex-start;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .alinea__status {
+            /* propriétés pour masquer visuellement certains mots juxtaposés aux numéros d'alinéas du projet de loi */
+            position: absolute;
+            left: -10000em;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        .alinea-ref {
+            align-items: baseline;
+            align-self: flex-start;
+            display: flex;
+            flex-direction: row;
+            width: 50%;
+        }
+
+        .alinea-prev {
+            align-items: baseline;
+            align-self: flex-end;
+            display: flex;
+            flex-direction: row-reverse;
+            width: 50%;
+        }
+
+        .alinea-ref--full-width {
+            display: flex;
+            flex-direction: row;
+            width: calc(100% - (2.1rem + var(--alinea__ID--margin-lr) * 2));
+        }
+
+        .alinea-prev--full-width {
+            display: flex;
+            flex-direction: row-reverse;
+            width: calc(100% - (2.1rem + var(--alinea__ID--margin-lr) * 2));
+            /* ou la fixer à 50% si on veut garder col droite/gauche vide en face */
+            min-width: 50%;
+        }
+
+        .alinea-ref__text {
+            padding: var(--alinea-padding);
+        }
+
+        .alinea-ref__ID,
+        .alinea-prev__ID {
+            align-items: center;
+            background-color: var(--alinea__ID--bg-color);
+            border-radius: 50%;
+            display: flex;
+            font-size: 1rem;
+            font-weight: 400;
+            justify-content: center;
+            height: 2.1rem;
+            margin: var(--alinea__ID--margin-lr);
+            padding: var(--alinea__ID-padding);
+            width: 2.1rem;
+        }
+
+        .alinea-ref__ID:hover,
+        .alinea-prev__ID:hover {
+            background-color: #6585B6;
+            color: white;
+        }
+
+        .alinea-prev__text {
+            padding: var(--alinea-padding);
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .globalnav {
+            background-color: white;
+            border-bottom-left-radius: 1rem;
+            border-bottom-right-radius: 1rem;
+            box-shadow: 0px 3px 0px rgba(0, 0, 0, 0.1);
+            color: #3c56bf;
+            height: 6rem;
+            margin: 0em 3%;
+            position: fixed;
+            top: -5rem;
+            transition-duration: 300ms;
+            transition-timing-function: ease-out;
+            width: 94%;
+        }
+
+        .globalnav:hover {
+            box-shadow:
+                0px 3px 0px rgba(0, 0, 0, 0.1),
+                -1px 8px 26px rgba(0, 0, 0, 0.09);
+            top: 0px;
+        }
+
+        .globalnav__menu {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .globalnav__item {
+            border: 1px solid;
+            color: #3c56bf;
+            display: block;
+            margin: 1em;
+            padding: 1em 2em;
+            text-decoration: none;
+        }
+
+        .globalnav__item:hover {
+            border: 3px solid;
+            box-shadow: -1px 8px 26px rgba(0, 0, 0, 0.09);
+            scale: 1.2;
+        }
+
+
+        /* Bottom Bar CSS Properties */
+
+        .toolbar {
+            align-items: center;
+            background-color: white;
+            border-top: solid 4px #D1DCEC;
+            bottom: 0px;
+            box-shadow: 0px -4px 15px rgba(0, 0, 0, 0.07);
+            display: flex;
+            flex-direction: row;
+            height: auto;
+            justify-content: space-between;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .toolbar__playlist {
+            background-color: white;
+            border-right: 1px solid #E0E0E0;
+            display: grid;
+            height: 75px;
+            padding: 0 10px;
+            padding-right: 1px;
+            place-content: center;
+            width: 75px;
+
+        }
+
+        .toolbar__browser {
+            align-items: center;
+            display: flex;
+            flex-direction: row;
+            flex-grow: 1;
+            padding: 0 2rem;
+        }
+
+        .tb-browser__btn {
+            margin-right: 0.3rem;
+        }
+
+        .tb-browser__btn+.tb-browser__btn {
+            margin-right: 1.7rem;
+        }
+
+        .tb-browser__overview {
+            justify-self: flex-start;
+            margin-right: 4rem;
+            width: 100%;
+        }
+
+        .tb-browser__overview h2 {
+            display: block;
+            color: #6585B6;
+            font-size: 1.1rem;
+            font-weight: lighter;
+            margin-bottom: 0.4rem;
+        }
+
+        .tb-browser__overview p {
+            color: #899198;
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .toolbar__donate {
+            align-items: center;
+            background-color: white;
+            border: 2px solid #D1DCEC;
+            border-radius: 6px;
+            color: #6585B6;
+            display: grid;
+            height: 2rem;
+            justify-self: self-end;
+            margin-left: 2rem;
+            margin-right: 3rem;
+            padding: 0.19rem 0.5rem;
+            place-content: center;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .toolbar__donate:hover {
+            border: 2px solid #3E649C;
+            color: #3E649C;
+        }
+
+        .toolbar__features {
+            align-items: center;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .tb-features__btn {
+            border-left: 1px solid #E0E0E0;
+            box-sizing: border-box;
+            display: grid;
+            height: 75px;
+            place-content: center;
+            width: 75px;
+        }
+
+        .tb-features__btn+.tb-features__btn {
+            margin-left: -1px;
+            margin-right: -1px;
+        }
+
+        @media (max-width:1023px) {
+            .toolbar__donate {
+                display: none;
+            }
+
+            .toolbar__features {
+                display: none;
+            }
+        }
+
+
+        /* ASIDE PANEL */
+
+        .aside__notes {
+            direction: rtl;
+            height: 100%;
+            overflow-y: scroll;
+            min-width: 260px;
+            max-width: 400px;
+        }
+
+        .note {
+            border-top: 2px solid #E0E0E0;
+            border-bottom: 2px solid #E0E0E0;
+            direction: ltr;
+            display: block;
+            padding: 2rem 1rem;
+        }
+
+        .note:last-of-type {
+            margin-bottom: 5rem;
+        }
+
+        .note__title {
+            color: #6585B6;
+        }
+
+        .note__comment {
+            background-color: #cecece;
+            border-radius: 0.95rem;
+            border-bottom-right-radius: 0;
+            margin: 0.6rem 0;
+            padding: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav class="globalnav">
+            <ul class="globalnav__menu" aria-labelledby="website-navigation">
+                <li><a href="https://www.google.com" class="globalnav__item vfx">Projets de loi</a></li>
+                <li><a href="https://www.google.com" class="globalnav__item vfx">Propositions de loi</a></li>
+                <li><a href="https://www.google.com" class="globalnav__item vfx">A propos</a></li>
+                <li><a href="https://www.google.com" class="globalnav__item vfx">Dépôt Github</a></li>
+                <li><a href="https://www.google.com" class="globalnav__item vfx">open-source license</a></li>
+            </ul>
+        </nav>
+
+        <div class="pjl">
+            <h3 class="pjl__h2">Article 1 du décret n° 2019-1215 du 20 novembre 2019</h3>
+            <article class="pjl-alinea vfx--quick">
+                <h4 class="pjl-alinea__ID"><span class="pjl-alinea__status">Alinéa </span>11</h4>
+                <p class="pjl-alinea__text">Le premier alinéa de l’article R. 6315-3 du code de la santé publique est
+                    ainsi
+                    modifié :</p>
+            </article>
+            <article class="pjl-alinea pjl-alinea--is-active vfx">
+                <h4 class="pjl-alinea__ID pjl-alinea__ID--is-active"><span class="pjl-alinea__status">Alinéa </span>2
+                </h4>
+                <p class="pjl-alinea__text">1° Les deux premières phrases sont remplacées par les dispositions suivantes
+                    :</p>
+            </article>
+            <article class="pjl-alinea vfx--quick">
+                <h4 class="pjl-alinea__ID"><span class="pjl-alinea__status">Alinéa </span>3</h4>
+                <p class="pjl-alinea__text">« L’accès au médecin de la permanence des soins ambulatoires fait l’objet
+                    d’une
+                    régulation médicale téléphonique préalable, accessible sur l’ensemble du territoire national, par le
+                    numéro
+                    national de permanence des soins (116 117) ou par le numéro national d’aide médicale urgente (15).
+                    Le
+                    directeur général de l’agence régionale de santé détermine lequel de ces deux numéros est utilisé au
+                    plan
+                    régional. Il l’inscrit dans le cahier des charges mentionné à l’article R. 6315-6. Les médecins
+                    volontaires
+                    participent à l’activité de régulation médicale des appels dans les conditions définies par ce
+                    cahier des
+                    charges. » ;</p>
+            </article>
+            <article class="pjl-alinea vfx--quick">
+                <h4 class="pjl-alinea__ID"><span class="pjl-alinea__status">Alinéa </span>3</h4>
+                <p class="pjl-alinea__text">« L’accès au médecin de la permanence des soins ambulatoires fait l’objet
+                    d’une
+                    régulation médicale téléphonique préalable, accessible sur l’ensemble du territoire national, par le
+                    numéro
+                    national de permanence des soins (116 117) ou par le numéro national d’aide médicale urgente (15).
+                    Le
+                    directeur général de l’agence régionale de santé détermine lequel de ces deux numéros est utilisé au
+                    plan
+                    régional. Il l’inscrit dans le cahier des charges mentionné à l’article R. 6315-6. Les médecins
+                    volontaires
+                    participent à l’activité de régulation médicale des appels dans les conditions définies par ce
+                    cahier des
+                    charges. » ;</p>
+            </article>
+
+        </div>
+
+
+
+        <!-- COLONNE CENTRALE LAW-VIEW !! -->
+        <div class="law-view">
+            <div class="comparison">
+                <article class="alinea-ref">
+                    <h4 class="alinea-ref__ID vfx">12<span class="alinea__status"> alinéa supprimé ou
+                            modifié</span></h4>
+                    <p class="alinea-ref__text bg-deletion vfx">Lorem, ipsum dolor sit amet consectetur adipisicing
+                        elit.
+                        Facilis facere fugit ea?
+                        Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                        debitis exercitationem eos, rerum animi?</p>
+                </article>
+                <article class="alinea-prev">
+                    <h4 class="alinea-prev__ID vfx">13<span class="alinea__status"> alinéa modifié ou
+                            ajouté</span></h4>
+                    <p class="alinea-prev__text bg-insertion vfx">Lorem, ipsum dolor sit amet consectetur adipisicing
+                        elit.
+                        Facilis facere fugit ea?
+                        Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                        debitis exercitationem eos, rerum animi?</p>
+                </article>
+            </div>
+
+            <article class="alinea-ref">
+                <h4 class="alinea-ref__ID vfx">23<span class="alinea__status"> alinéa supprimé ou
+                        modifié</span></h4>
+                <p class="alinea-ref__text bg-deletion vfx">Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                    Facilis facere fugit ea?
+                    Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                    debitis exercitationem eos, rerum animi?</p>
+            </article>
+
+
+            <article class="alinea-prev alinea-prev--full-width">
+                <h4 class="alinea-prev__ID vfx">24<span class="alinea__status"> alinéa modifié ou
+                        ajouté</span></h4>
+                <p class="alinea-prev__text bg-insertion vfx">Lorem, ipsum dolor sit amet </p>
+            </article>
+
+
+            <article class="alinea-prev alinea-prev--full-width ">
+                <h4 class="alinea-prev__ID vfx">45<span class="alinea__status"> alinéa modifié ou
+                        ajouté</span></h4>
+                <p class="alinea-prev__text bg-insertion vfx">Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                    Facilis facere fugit ea?
+                    Iusto necessitatibus eligendi <span class="insertion"> vel itaque earum</span>, aut sunt. Quis quae
+                    ducimus molestias
+                    debitis exercitationem eos, rerum animi?</p>
+            </article>
+
+            <article class="alinea-ref alinea-ref--full-width">
+                <h4 class="alinea-ref__ID vfx">12<span class="alinea__status"> alinéa supprimé ou
+                        modifié</span></h4>
+                <p class="alinea-ref__text bg-deletion vfx">Lorem, ipsum dolor sit amet consectetur adipisicing elit.
+                    Facilis facere fugit ea?
+                    Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                    debitis exercitationem eos, rerum animi?</p>
+            </article>
+
+
+            <hr style="margin-top:3rem; margin-bottom:3rem;">
+
+            <article class="alinea-ref alinea-ref--full-width">
+                <h4 class="alinea-ref__ID vfx">12<span class="alinea__status"> alinéa en vigueur</span></h4>
+                <p class="alinea-ref__text">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facilis facere
+                    fugit ea?
+                    Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                    debitis exercitationem eos, rerum animi?</p>
+            </article>
+
+            <article class="alinea-prev">
+                <h4 class="alinea-prev__ID vfx">12<span class="alinea__status"> alinéa en vigueur</span></h4>
+                <p class="alinea-prev__text">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facilis facere
+                    fugit ea?
+                    Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                    debitis exercitationem eos, rerum animi?</p>
+            </article>
+
+            <article class="alinea-ref">
+                <h4 class="alinea-ref__ID vfx">12<span class="alinea__status"> alinéa en vigueur</span></h4>
+                <p class="alinea-ref__text">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facilis facere
+                    fugit ea?
+                    Iusto necessitatibus eligendi commodi vel itaque earum, aut sunt. Quis quae ducimus molestias
+                    debitis exercitationem eos, rerum animi?</p>
+            </article>
+        </div>
+
+
+        <!-- ASIDE BAR  
+        <aside class="aside__notes">
+            <article class="note">
+                <h4 class="note__title">Article D131-6-4</h4>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui animi veniam labore, optio nobis, sequi
+                    eos consequuntur vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                    eligendi eius quasi.</p>
+                    <article class="note__comment">Commentaire vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                        eligendi eius quasi.</article>
+            </article>
+            <article class="note">
+                <h4 class="note__title">Article D131-6-4</h4>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui animi veniam labore, optio nobis, sequi
+                    eos consequuntur vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                    eligendi eius quasi.</p>
+                    <article class="note__comment">Commentaire vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                        eligendi eius quasi.</article>
+            </article>
+            <article class="note">
+                <h4 class="note__title">Article D131-6-4</h4>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui animi veniam labore, optio nobis, sequi
+                    eos consequuntur vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                    eligendi eius quasi.</p>
+            </article>
+            <article class="note">
+                <h4 class="note__title">Article D131-6-4</h4>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui animi veniam labore, optio nobis, sequi
+                    eos consequuntur vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                    eligendi eius quasi.</p>
+            </article>
+            <article class="note">
+                <h4 class="note__title">Article D131-6-4</h4>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui animi veniam labore, optio nobis, sequi
+                    eos consequuntur vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                    eligendi eius quasi.</p>
+                    <article class="note__comment">Commentaire vitae architecto impedit officia omnis soluta necessitatibus rerum. Quia dolor
+                        eligendi eius quasi.</article>
+            </article>
+        </aside> -->
+
+
+        <!-- BOTTOM BAR -->
+        <div class="toolbar">
+            <a href="#" class="toolbar__playlist"><img src="carbon_playlist.svg"></a>
+            <div class="toolbar__browser">
+                <a href="#" class="tb-browser__btn" alt="précédent alinéa du PJL">
+                    <img src="btn-previous.svg" alt="atteindre l'alinéa précédent du projet de loi"
+                        title="atteindre l'alinéa précédent du projet de loi">
+                </a>
+                <a href="#" class="tb-browser__btn" alt="prochain alinéa du PJL">
+                    <img src="btn-next.svg" alt="atteindre l'alinéa suivant du projet de loi"
+                        title="atteindre l'alinéa suivant du projet de loi">
+                </a>
+                <div class="tb-browser__overview">
+                    <h2 class="tb-browser__alinea-position">N° & Intitulé de l'alinéa en cours</h2>
+                    <p class="tb-browser__pjl-title">Intitulé du projet de loi</p>
+                </div>
+                <img src="btn-check.svg" class="tb-browser__btn-validator"
+                    alt="aucun problème détecté dans le projet de loi"
+                    title="aucun problème détecté dans le projet de loi">
+            </div>
+            <a href="" class="toolbar__donate vfx">nous aider</a>
+            <div class="toolbar__features">
+                <a href="#" class="tb-features__btn">
+                    <img src="btn-settings.svg" alt="personnaliser" title="personnaliser">
+                </a>
+                <a href="#" class="tb-features__btn">
+                    <img src="btn-notes.svg" alt="annoter" title="annoter">
+                </a>
+                <a href="#" class="tb-features__btn">
+                    <img src="btn-collaborate.svg" alt="collaborer" title="collaborer">
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
